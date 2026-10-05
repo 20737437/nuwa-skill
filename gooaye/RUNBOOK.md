@@ -41,11 +41,11 @@
   - 從四個時期各抽 1 集，各看 5 張卡，判斷品質（對照 `gooaye-data/reference/` 的手動標準卡）
   - 請使用者回報目前 credits 剩多少，換算每集成本，推算能不能跑完。跑不完的話提出方案：降比例、改用 haiku，或只跑偶數集
 - 之後每 150 集簡短回報一次進度。
-- **credits 剩不到 USD 25 時停止萃取**。剩下的額度要留給 S4–S10（主題整理、提煉、驗證），不能全部花在萃取。
+- **credits 剩不到 USD 35 時停止萃取**。剩下的額度留給後段（Opus 做主題整理、提煉、預測測試、驗證），那是品質的關鍵，不能全花在萃取。
 - 上下文太長、session 變慢時：確認最後一批已 push，回報進度，請使用者開新 session 繼續（照第 0 步準備，進度會自動接上）。
 
 ## 3. 規則
 
 - 卡片、逐字稿、驗證輸出**絕不**放進 `nuwa-skill`（公開 repo），只存 `gooaye-data`。
-- 不要修改 `prompts/extract.md` 或 `schemas/card.schema.json`：全量期間格式凍結在 prompt_version v2。真的有系統性問題時，先停下來問使用者。
+- 不要修改 `prompts/extract.md` 或 `schemas/card.schema.json`：目前凍結在 prompt_version v3（只做投資面）。先前用 v2 抽的集數保留不重跑，後段會只取 invest/both 卡。真的有系統性問題時，先停下來問使用者。
 - 不要跳過驗證就入庫。
