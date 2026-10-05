@@ -1,6 +1,9 @@
 {
   "type": "object",
   "properties": {
+    "ep": {"type": "integer"},
+    "prompt_version": {"type": "string"},
+    "model": {"type": "string"},
     "segments": {
       "description": "只有輸入標記為『未分段』時才填；已分段則輸出空陣列",
       "type": "array",
@@ -19,6 +22,7 @@
     },
     "cards": {
       "type": "array",
+      "maxItems": 20,
       "items": {
         "type": "object",
         "properties": {
@@ -27,25 +31,30 @@
           "seg_id": {"type": "string"},
           "paragraph": {"type": "integer"},
           "claim": {"type": "string"},
-          "quote": {"type": "string"},
+          "quote": {"type": "string", "maxLength": 60},
           "tone": {"type": "string", "enum": ["serious", "joking", "sarcastic", "hedged"]},
           "speaker": {"type": "string", "enum": ["self", "listener_question", "quoting_other"]},
           "condition": {"type": ["string", "null"]},
-          "mv_subject": {"type": ["string", "null"]},
-          "mv_subject_type": {"type": ["string", "null"], "enum": ["index", "sector", "ticker", "macro", "asset", null]},
-          "mv_direction": {"type": ["string", "null"], "enum": ["bullish", "bearish", "neutral", "holding", "exited", null]},
-          "mv_rationale": {"type": ["string", "null"]},
-          "mv_invalidation": {"type": ["string", "null"]},
+          "mv": {
+            "description": "只有 kind=market_view 時填，其餘為 null",
+            "type": ["object", "null"],
+            "properties": {
+              "subject": {"type": "string"},
+              "direction": {"type": "string", "enum": ["bullish", "bearish", "neutral", "holding", "exited"]},
+              "rationale": {"type": "string"},
+              "invalidation": {"type": ["string", "null"]}
+            },
+            "required": ["subject", "direction", "rationale", "invalidation"],
+            "additionalProperties": false
+          },
           "qa_question": {"type": ["string", "null"]},
-          "tags": {"type": "array", "items": {"type": "string"}}
+          "tags": {"type": "array", "items": {"type": "string"}, "maxItems": 3}
         },
-        "required": ["kind", "lens", "seg_id", "paragraph", "claim", "quote", "tone", "speaker", "condition",
-                     "mv_subject", "mv_subject_type", "mv_direction", "mv_rationale", "mv_invalidation",
-                     "qa_question", "tags"],
+        "required": ["kind", "lens", "seg_id", "paragraph", "claim", "quote", "tone", "speaker", "condition", "mv", "qa_question", "tags"],
         "additionalProperties": false
       }
     }
   },
   "required": ["segments", "cards"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

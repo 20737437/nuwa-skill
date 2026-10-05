@@ -25,7 +25,26 @@ from common import CARDS, DATA, ROOT, SEGMENTS, load_manifest
 RENDERED = DATA / "rendered"
 BATCHES = DATA / "batches.jsonl"
 CONFIG = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
-SCHEMA = json.loads((ROOT / "schemas" / "card.schema.json").read_text(encoding="utf-8"))
+def _api_schema(node):
+    """card.schema.json 給 session 內萃取與驗證用；送 API 前移除 structured outputs 不支援的關鍵字。"""
+    if isinstance(node, dict):
+        node = {k: _api_schema(v) for k, v in node.items() if k not in ("maxItems", "maxLength", "description")}
+        if isinstance(node.get("type"), list) and "object" in node["type"]:
+            obj = {**node, "type": "object"}
+            node = {"anyOf": [obj, {"type": "null"}]}
+        return node
+    if isinstance(node, list):
+        return [_api_schema(v) for v in node]
+    return node
+
+
+_FULL = json.loads((ROOT / "schemas" / "card.schema.json").read_text(encoding="utf-8"))
+SCHEMA = _api_schema({
+    "type": "object",
+    "properties": {k: _FULL["properties"][k] for k in ("segments", "cards")},
+    "required": ["segments", "cards"],
+    "additionalProperties": False,
+})
 SYSTEM = (ROOT / "prompts" / "extract.md").read_text(encoding="utf-8")
 
 

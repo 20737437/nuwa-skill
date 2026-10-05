@@ -15,6 +15,7 @@ import re
 import sys
 from pathlib import Path
 
+import jsonschema
 import yaml
 from rapidfuzz import fuzz
 
@@ -25,6 +26,12 @@ THRESH = CONFIG["validate"]["fuzzy_threshold"]
 # 隱私警示：命中只標記、不自動丟卡，交給人工抽查
 PRIVACY = re.compile(r"腎|病房|囊腫|確診|癌症|診斷|住院|開刀|手術|病名|學校|住址|地址|身分證|小名|取名|老婆的|太太的|兒子的|女兒的")
 MAX_DROP = CONFIG["validate"]["max_drop_rate"]
+SCHEMA = json.loads((ROOT / "schemas" / "card.schema.json").read_text(encoding="utf-8"))
+
+
+def schema_errors(data: dict) -> list[str]:
+    v = jsonschema.Draft202012Validator(SCHEMA)
+    return [f"{'/'.join(map(str, e.path))}: {e.message[:80]}" for e in v.iter_errors(data)]
 
 
 def warnings(card: dict, paragraphs: dict[int, str]) -> list[str]:
@@ -67,7 +74,16 @@ def main() -> None:
     kinds, lenses, tones = collections.Counter(), collections.Counter(), collections.Counter()
     per_ep = []
     for f in sorted(args.cards_dir.glob("EP*.json")):
-        data = json.loads(f.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            print(f"  {f.name}: JSON 無法解析（{e}）→ 需重跑")
+            per_ep.append((f.stem, 0, 0, 1.0, 0))
+            continue
+        errs = schema_errors(data)
+        if errs:
+            totals["schema_error"] += len(errs)
+            print(f"  {f.name}: 格式錯誤 {len(errs)} 處，例：{errs[0]}")
         rendered = json.loads((DATA / "rendered" / f.name).read_text(encoding="utf-8"))
         paragraphs = {p["p"]: p["text"] for p in rendered["paragraphs"]}
         full = normalize_for_match("".join(paragraphs.values()))

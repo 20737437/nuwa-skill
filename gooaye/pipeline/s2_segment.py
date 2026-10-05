@@ -37,7 +37,10 @@ def split_qa(text: str) -> list[str]:
 
 def segment(body: str) -> dict:
     heads = list(re.finditer(r"^#{2,3}\s+(.+)$", body, re.M))
-    if not heads:
+    # 只有 Q&A 標題（或幾乎沒標題）的集數，正文其實沒切，整集交給模型分段
+    qa_at = next((h.start() for h in heads if classify(h.group(1)) == "qa"), len(body))
+    body_heads = [h for h in heads if h.start() < qa_at]  # Q&A 之後的小標題是聽眾名字，不算
+    if len(body_heads) < 3:
         return {"mode": "needs_llm", "segments": [{"seg_id": "s0", "type": "unsegmented", "title": "", "text": body}]}
     segs = []
     if heads[0].start() > 0 and body[: heads[0].start()].strip():
