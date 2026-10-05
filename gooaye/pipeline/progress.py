@@ -50,7 +50,9 @@ def order() -> list[int]:
             for q in queues:
                 if q:
                     out.append(q.pop(0))
-    return out + list(range(HOLDOUT_FROM, LAST_EP + 1))
+    holdout = list(range(HOLDOUT_FROM, LAST_EP + 1))
+    early = holdout[::max(1, len(holdout) // 10)][:10]  # 驗證區先保留約 10 集，避免預算用完時沒有考題
+    return out[:40] + early + out[40:] + [e for e in holdout if e not in early]
 
 
 def cmd_status() -> None:
