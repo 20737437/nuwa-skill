@@ -1,1 +1,5 @@
 .last-update-check
+
+# gooaye pipeline: 逐字稿與中間產物只留本機（著作權）
+gooaye/data/
+__pycache__/

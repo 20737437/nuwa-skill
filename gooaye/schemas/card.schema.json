@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "segments": {
+      "description": "只有輸入標記為『未分段』時才填；已分段則輸出空陣列",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "seg_id": {"type": "string"},
+          "type": {"type": "string", "enum": ["opening", "sponsor", "life_chat", "market", "industry", "pep_talk", "qa_item", "other"]},
+          "title": {"type": "string"},
+          "start_p": {"type": "integer"},
+          "end_p": {"type": "integer"}
+        },
+        "required": ["seg_id", "type", "title", "start_p", "end_p"],
+        "additionalProperties": false
+      }
+    },
+    "cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {"type": "string", "enum": ["belief", "heuristic", "market_view", "self_correction", "qa", "story", "expression", "uncertainty"]},
+          "lens": {"type": "string", "enum": ["invest", "life", "both"]},
+          "seg_id": {"type": "string"},
+          "paragraph": {"type": "integer"},
+          "claim": {"type": "string"},
+          "quote": {"type": "string"},
+          "tone": {"type": "string", "enum": ["serious", "joking", "sarcastic", "hedged"]},
+          "speaker": {"type": "string", "enum": ["self", "listener_question", "quoting_other"]},
+          "condition": {"type": ["string", "null"]},
+          "mv_subject": {"type": ["string", "null"]},
+          "mv_subject_type": {"type": ["string", "null"], "enum": ["index", "sector", "ticker", "macro", "asset", null]},
+          "mv_direction": {"type": ["string", "null"], "enum": ["bullish", "bearish", "neutral", "holding", "exited", null]},
+          "mv_rationale": {"type": ["string", "null"]},
+          "mv_invalidation": {"type": ["string", "null"]},
+          "qa_question": {"type": ["string", "null"]},
+          "tags": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["kind", "lens", "seg_id", "paragraph", "claim", "quote", "tone", "speaker", "condition",
+                     "mv_subject", "mv_subject_type", "mv_direction", "mv_rationale", "mv_invalidation",
+                     "qa_question", "tags"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["segments", "cards"],
+  "additionalProperties": false
+}

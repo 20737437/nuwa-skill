@@ -1,0 +1,24 @@
+# 股癌蒸餾管線設定（試跑階段）
+
+# 20 集分層試跑樣本：每年約 3 集，含 2020-03 熔斷、2022 空頭、2025-04 關稅股災、2025-10 稀土崩盤。
+# 刻意避開 holdout 區間（EP676 之後，評測模型訓練截止日之後）。
+# EP547 談到家人健康 → 用來測試隱私過濾。
+pilot_eps: [10, 45, 60, 130, 170, 200, 240, 255, 290, 330, 370, 400, 440, 470, 510, 547, 549, 600, 640, 670]
+
+holdout_from_ep: 676
+
+extract:
+  # 試跑時三個模型都跑同一批，比較後再決定全量用哪個
+  models: [claude-opus-5-5, claude-sonnet-5-5, claude-haiku-4-5]
+  effort: medium          # Opus 5.5 / Sonnet 5.5 用；Haiku 4.5 不支援 effort
+  max_tokens: 32000
+
+# 美元 / 每百萬 token（標準價；Batch 為半價）
+pricing:
+  claude-opus-5-5: {input: 4.0, output: 20.0}
+  claude-sonnet-5-5: {input: 2.0, output: 10.0}
+  claude-haiku-4-5: {input: 1.0, output: 5.0}
+
+validate:
+  fuzzy_threshold: 90     # rapidfuzz partial_ratio，低於此值的引文視為不存在
+  max_drop_rate: 0.05     # 單集丟卡率超過就重跑
