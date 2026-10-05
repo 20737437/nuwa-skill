@@ -24,13 +24,13 @@
 1. `python3 progress.py next 10` 取得下一批 10 集，以及每集該用的模型（haiku / sonnet）。
 2. 每集開一個背景子 agent（`subagent_type: general-purpose`、`model` 照清單、`run_in_background: true`），**10 個在同一回合一起送出**。
    - prompt 用 `gooaye/prompts/subagent.md`，替換 `{EP}`（如 42）、`{EP4}`（如 0042）、`{MODEL}`、`{OUT_DIR}`=`/home/user/nuwa-skill/gooaye/data/cards/inbox`。
-3. 等 10 個完成通知（不要輪詢，也不要讀子 agent 的 transcript）。
+3. 等 10 個完成通知（不要輪詢，也不要讀子 agent 的 transcript）。每個通知的 `<usage>` 有 `subagent_tokens`，把這批的總和追加一行到 `/home/user/gooaye-data/usage.log`（格式：`批次 集數 tokens`），之後用來換算每集成本。
 4. 驗收並入庫：
    ```bash
    python3 progress.py ingest ../data/cards/inbox && rm -f ../data/cards/inbox/EP*.json
    cd /home/user/gooaye-data && git add -A && git commit -qm "cards: batch $(date +%s)" && git push -q
    ```
-5. 失敗的集數（記在 progress.json 的 failed）改用 sonnet 重跑一次；再失敗就跳過，留到最後回報。
+5. 失敗的集數（記在 progress.json 的 failed）重跑一次；再失敗就跳過，留到最後回報。
 
 主 session 每批只保留一行紀錄，例如「批次 7：10/10 入庫，累計 70 集」。不要把卡片內容或驗證細節貼進對話。
 
@@ -38,7 +38,7 @@
 
 - **第一個檢查點：累計 40 集時**，停下來回報給使用者：
   - 各模型每集平均卡數、丟卡率、隱私／說話者警示數（`python3 validate_cards.py /home/user/gooaye-data/cards`）
-  - 抽 2 集 haiku、2 集 sonnet 的卡片各看 5 張，判斷品質
+  - 從四個時期各抽 1 集，各看 5 張卡，判斷品質（對照 `gooaye-data/reference/` 的手動標準卡）
   - 請使用者回報目前 credits 剩多少，換算每集成本，推算能不能跑完。跑不完的話提出方案：降比例、改用 haiku，或只跑偶數集
 - 之後每 150 集簡短回報一次進度。
 - **credits 剩不到 USD 25 時停止萃取**。剩下的額度要留給 S4–S10（主題整理、提煉、驗證），不能全部花在萃取。

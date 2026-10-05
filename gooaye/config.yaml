@@ -41,9 +41,9 @@ predict_holdout:
   "2025-26": [527, 533, 535, 537, 560, 562, 572, 573, 575, 577, 581, 587, 588, 599, 602, 609, 613, 616, 621, 637, 655, 661, 671, 675]
 
 # session 內萃取的模型分派（子 agent 的 model 參數）；校準後可調整
-in_session_assignment:
-  "2020-21": haiku
-  "2022": haiku
+in_session_assignment:   # 校準結果（2026-10-05）：Haiku 格式錯誤多、有理解錯誤且 token 反而更多 → 全部用 Sonnet
+  "2020-21": sonnet
+  "2022": sonnet
   "2023-24": sonnet
   "2025-26": sonnet
   holdout_eval: sonnet   # EP676 之後
